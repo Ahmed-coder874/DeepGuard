@@ -1,0 +1,29 @@
+# =============================================================================
+# DeepGuard - TRAINING / EVALUATION dependencies  (environment: venv-train)
+# =============================================================================
+# These packages belong to a SEPARATE training environment ("venv-train").
+# They are required ONLY to retrain the model or to re-run the official
+# evaluation. Running the Streamlit application does NOT need this environment.
+#
+# Verified compatibility:
+#   - Python 3.14.7 on Windows (win_amd64)
+#   - torch 2.14.0 and torchvision 0.29.0 both publish cp314 win_amd64 wheels
+#   - torchvision 0.29.0 pins torch==2.14.0
+#   - CPU only: this machine has no NVIDIA GPU, so no CUDA packages are used.
+#
+#   Install:
+#       cd <project folder>
+#       python -m venv venv-train
+#       venv-train\Scripts\python.exe -m pip install -r requirements-train.txt
+#
+#   Use:
+#       venv-train\Scripts\python.exe train_model.py
+#       venv-train\Scripts\python.exe evaluate_model.py
+#
+# NOTE: `config.py` and the training/evaluation scripts additionally import
+# OpenCV, NumPy and Pillow from the project package. Install those into
+# venv-train as well if you want a fully self-contained training environment.
+# =============================================================================
+
+torch==2.14.0
+torchvision==0.29.0

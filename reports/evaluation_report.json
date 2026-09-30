@@ -1,0 +1,55 @@
+{
+  "generated_at": "2026-09-22T20:19:05",
+  "checkpoint_path": "E:\\SIP\\Prototype\\deepguard\\models\\deepguard_efficientnet_b0.pt",
+  "processed_dir": "E:\\SIP\\Prototype\\deepguard\\data\\processed",
+  "device": "cpu",
+  "model_name": "efficientnet_b0",
+  "checkpoint_epoch": 6,
+  "checkpoint_validation_loss": 0.4907777428627014,
+  "checkpoint_validation_accuracy": 0.7833333333333333,
+  "torch_version": "2.14.0+cpu",
+  "metrics": {
+    "num_samples": 120,
+    "accuracy": 0.75,
+    "confusion_matrix": [
+      [
+        60,
+        0
+      ],
+      [
+        30,
+        30
+      ]
+    ],
+    "class_names": [
+      "real",
+      "fake"
+    ],
+    "per_class": {
+      "real": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1": 0.8,
+        "support": 60
+      },
+      "fake": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6666666666666666,
+        "support": 60
+      }
+    },
+    "macro": {
+      "precision": 0.8333333333333333,
+      "recall": 0.75,
+      "f1": 0.7333333333333334
+    },
+    "positive_class": "fake",
+    "positive": {
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6666666666666666,
+      "support": 60
+    }
+  }
+}

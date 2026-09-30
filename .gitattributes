@@ -1,0 +1,29 @@
+# =============================================================================
+# DeepGuard - line ending and file handling rules
+# =============================================================================
+# Keeps a clone identical on Windows, macOS and Linux: text files are stored
+# with LF in the repository and checked out with the native line ending, so the
+# frozen experimental evidence cannot drift between machines.
+# =============================================================================
+
+# Normalise text files to LF in the repository, check out with native endings
+* text=auto eol=crlf
+
+# Force LF in the repository for code and configuration
+*.py     text eol=lf
+*.md     text eol=lf
+*.txt    text eol=lf
+*.json   text eol=lf
+*.csv    text eol=lf
+
+# Binary files - never touch these
+*.pt     binary
+*.pth    binary
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.pdf    binary
+*.mp4    binary
+
+# Keep the dataset metadata readable everywhere
+*.ipynb  text eol=lf

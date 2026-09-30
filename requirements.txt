@@ -1,0 +1,39 @@
+# =============================================================================
+# DeepGuard - APPLICATION dependencies  (environment: venv)
+# =============================================================================
+# These are the exact packages the Streamlit application needs in order to
+# start and to run real inference on an uploaded image.
+#
+#   Verified on: Python 3.14.7 (win_amd64)
+#
+# PyTorch IS part of the application environment: `app.py` calls
+# `src/inference.predict_image()`, which loads the trained EfficientNet-B0
+# checkpoint and runs a forward pass. The separate training environment
+# (venv-train) is NOT required to run the app.
+#
+#   Install:
+#       cd <project folder>
+#       python -m venv venv
+#       venv\Scripts\python.exe -m pip install -r requirements.txt
+#
+#   Run:
+#       venv\Scripts\python.exe -m streamlit run app.py
+# =============================================================================
+
+# --- Web UI -----------------------------------------------------------------
+streamlit==1.64.0
+
+# --- Image loading and preprocessing ----------------------------------------
+opencv-python==5.0.0.93
+numpy==2.5.3
+Pillow==12.3.0
+
+# --- Model loading and inference (CPU build, matches the training env) ------
+torch==2.14.0
+torchvision==0.29.0
+
+# =============================================================================
+# NOT required by the application:
+#   venv-train  / requirements-train.txt  -> training and evaluation only
+#   requirements-data.txt                 -> dataset download / frame extraction
+# =============================================================================

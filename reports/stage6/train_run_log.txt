@@ -1,0 +1,92 @@
+==============================================================
+DeepGuard - Model training (Stage 4)
+==============================================================
+Architecture : efficientnet_b0
+Epochs       : 10
+Batch size   : 8
+Learning rate: 0.0003
+Seed         : 42
+Pretrained   : True
+==============================================================
+
+Dataset readiness
+  Processed folder: E:\SIP\Prototype\deepguard\data\processed
+  Found on disk   : True
+       train: 180 real / 180 fake
+  validation: 60 real / 60 fake
+        test: 60 real / 60 fake
+  Ready to train  : True
+
+Torch version: 2.14.0+cpu
+CUDA available: False
+
+Epoch 1/10
+Train Loss: 0.6099
+Train Accuracy: 0.6361
+Validation Loss: 0.6585
+Validation Accuracy: 0.6250
+
+Epoch 2/10
+Train Loss: 0.2206
+Train Accuracy: 0.9111
+Validation Loss: 0.7458
+Validation Accuracy: 0.5500
+
+Epoch 3/10
+Train Loss: 0.1317
+Train Accuracy: 0.9611
+Validation Loss: 0.6652
+Validation Accuracy: 0.5333
+
+Epoch 4/10
+Train Loss: 0.1489
+Train Accuracy: 0.9500
+Validation Loss: 0.5997
+Validation Accuracy: 0.8083
+
+Epoch 5/10
+Train Loss: 0.0261
+Train Accuracy: 0.9944
+Validation Loss: 0.6748
+Validation Accuracy: 0.5417
+
+Epoch 6/10
+Train Loss: 0.0362
+Train Accuracy: 0.9917
+Validation Loss: 0.4908
+Validation Accuracy: 0.7833
+
+Epoch 7/10
+Train Loss: 0.0469
+Train Accuracy: 0.9833
+Validation Loss: 0.5771
+Validation Accuracy: 0.6500
+
+Epoch 8/10
+Train Loss: 0.1215
+Train Accuracy: 0.9583
+Validation Loss: 0.6341
+Validation Accuracy: 0.6167
+
+Epoch 9/10
+Train Loss: 0.0335
+Train Accuracy: 0.9889
+Validation Loss: 0.6448
+Validation Accuracy: 0.6083
+
+Early stopping: validation loss did not improve for 3 consecutive epoch(s).
+
+==============================================================
+Training finished
+  Device            : cpu
+  Training images   : 360
+  Validation images : 120
+  Epochs completed  : 9 of 10
+  Best epoch        : 6
+  Best validation loss: 0.4908
+  Early stopping    : True
+  Checkpoint saved  : E:\SIP\Prototype\deepguard\models\deepguard_efficientnet_b0.pt
+
+These are training/validation values only. The test set is reserved
+for Stage 5 evaluation.
+==============================================================

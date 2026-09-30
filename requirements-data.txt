@@ -1,0 +1,19 @@
+# =============================================================================
+# DeepGuard - OPTIONAL dataset tooling dependencies
+# =============================================================================
+# Only needed if you want to REBUILD the dataset under `data/`, i.e. to
+# reproduce the training or evaluation stages. The Streamlit application runs
+# inference without any of these.
+#
+#   download.py                  -> FaceForensics++ download helper (needs tqdm)
+#   extract_dataset_frames.py    -> videos -> frames (OpenCV, NumPy, Pillow)
+#   prepare_dataset.py           -> deterministic leak-free splits
+#
+#   Install:
+#       venv\Scripts\python.exe -m pip install -r requirements-data.txt
+# =============================================================================
+
+opencv-python==5.0.0.93
+numpy==2.5.3
+Pillow==12.3.0
+tqdm==4.70.1
