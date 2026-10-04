@@ -1,0 +1,97 @@
+{
+  "experiment": "experiment_2_large_dataset",
+  "generated_at": "2026-10-03T14:53:56+00:00",
+  "dry_run": false,
+  "source": {
+    "dataset": "Kaggle: xhlulu/140k-real-and-fake-faces (v2)",
+    "url": "https://www.kaggle.com/datasets/xhlulu/140k-real-and-fake-faces",
+    "license": "Kaggle: 'Other (specified in description)'. Underlying FFHQ photographs are CC BY-NC-SA 4.0 (NVIDIA) - non-commercial use, attribution required. No images are redistributed by this repository.",
+    "pool_root": "E:\\SIP\\140k_dataset\\real_vs_fake\\real-vs-fake",
+    "official_split_sizes": {
+      "train": {
+        "real": 50000,
+        "fake": 50000
+      },
+      "validation": {
+        "real": 10000,
+        "fake": 10000
+      },
+      "test": {
+        "real": 10000,
+        "fake": 10000
+      }
+    }
+  },
+  "distribution_caveat": "Experiment 1 fake class = FaceForensics++ face-swap manipulation. Experiment 2 fake class = StyleGAN synthesis. Dataset size AND fake-image distribution both change, so Experiment 2 is NOT a controlled dataset-size experiment and must never be described as one.",
+  "configuration": {
+    "seed": 42,
+    "per_class_quotas": {
+      "train": 2100,
+      "validation": 450,
+      "test": 450
+    },
+    "expected_total": 6000,
+    "phash_threshold": 3,
+    "phash_jobs": 8,
+    "split_policy": "Experiment 2 splits inherit the publisher's official train/valid/test folders; no image ever crosses that boundary."
+  },
+  "pool_sizes_after_dedupe": {
+    "train": {
+      "real": 49981,
+      "fake": 45421
+    },
+    "validation": {
+      "real": 10000,
+      "fake": 9649
+    },
+    "test": {
+      "real": 10000,
+      "fake": 9880
+    }
+  },
+  "deduplication": {
+    "scanned": 140000,
+    "unreadable": 0,
+    "exact_duplicates_removed_same_class_same_split": 0,
+    "exact_duplicates_removed_cross_split": 0,
+    "exact_duplicates_removed_cross_class": 0,
+    "near_duplicates_removed": 5069,
+    "removed_total": 5069
+  },
+  "selected": {
+    "total": 6000,
+    "bytes": 172652155,
+    "human_bytes": "164.7 MB",
+    "counts": {
+      "train": {
+        "real": 2100,
+        "fake": 2100,
+        "total": 4200
+      },
+      "validation": {
+        "real": 450,
+        "fake": 450,
+        "total": 900
+      },
+      "test": {
+        "real": 450,
+        "fake": 450,
+        "total": 900
+      }
+    }
+  },
+  "min_cross_split_phash_distance": {
+    "train|validation": 4,
+    "train|test": 4,
+    "validation|test": 6
+  },
+  "audit": {
+    "exact_counts_match_quota": true,
+    "classes_balanced_in_every_split": true,
+    "no_exact_duplicate_across_splits": true,
+    "no_image_labelled_both_real_and_fake": true,
+    "experiment_split_maps_to_one_official_split": true,
+    "no_near_duplicate_across_splits": true
+  },
+  "audit_passed": true
+}

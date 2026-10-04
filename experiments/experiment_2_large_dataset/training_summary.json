@@ -1,0 +1,21 @@
+{
+  "experiment": "experiment_2_large_dataset",
+  "model_name": "efficientnet_b0",
+  "device": "cpu",
+  "epochs_requested": 10,
+  "epochs_completed": 10,
+  "best_epoch": 10,
+  "best_validation_loss": 0.06835601629805751,
+  "stopped_early": false,
+  "checkpoint_path": "E:\\SIP\\Prototype\\deepguard\\models\\experiment_2_deepguard_efficientnet_b0.pt",
+  "train_images": 4200,
+  "validation_images": 900,
+  "batch_size": 8,
+  "learning_rate": 0.0003,
+  "weight_decay": 0.0001,
+  "patience": 3,
+  "seed": 42,
+  "pretrained": true,
+  "dataset_fingerprint": "cafc017380d10484326d668e2893f3582ddeb8c5e23c278569804d7e44f3d8bb",
+  "wall_clock_minutes_this_run": 600.47
+}

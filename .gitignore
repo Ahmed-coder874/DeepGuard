@@ -33,13 +33,31 @@ data/*
 !data/README.md
 
 # -----------------------------------------------------------------------------
-# Trained checkpoints other than the authoritative one
+# Trained checkpoints other than the authoritative ones
 # -----------------------------------------------------------------------------
-# models/deepguard_efficientnet_b0.pt is the single frozen official checkpoint
-# and IS committed. Any other checkpoint produced by an ad-hoc run is ignored.
+# models/deepguard_efficientnet_b0.pt is the frozen official Experiment 1
+# checkpoint and IS committed. Experiment 2's checkpoint is likewise committed
+# so both experiments stay reproducible. Anything else produced by an ad-hoc
+# run - including the Experiment 2 resume state, which is large and useless
+# without the dataset - is ignored.
 models/*
 !models/deepguard_efficientnet_b0.pt
+!models/experiment_2_deepguard_efficientnet_b0.pt
 !models/.gitkeep
+
+# -----------------------------------------------------------------------------
+# Experiment 2 image data - NEVER committed
+# -----------------------------------------------------------------------------
+# experiments/*/source/    the extracted Kaggle "140k Real and Fake Faces"
+#                          dataset (~4 GB, CC BY-NC-SA 4.0, not redistributable)
+# experiments/*/processed/ the 6,000 selected images used for Experiment 2
+#
+# What IS committed for each experiment: dataset_manifest.csv (image id, label,
+# split, source file, md5, phash - no pixels), dataset_report.json and
+# dataset_validation.json (counts and audit results), the training run log and
+# the training summary.
+experiments/*/source/
+experiments/*/processed/
 
 # -----------------------------------------------------------------------------
 # Python bytecode / caches

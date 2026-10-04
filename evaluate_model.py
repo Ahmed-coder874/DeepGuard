@@ -21,6 +21,7 @@ Typical use
     python evaluate_model.py --status          # only report readiness
     python evaluate_model.py --checkpoint models/my_model.pt
     python evaluate_model.py --batch-size 8
+    python evaluate_model.py --reports-dir experiments/experiment_2_large_dataset/reports
 
 IMPORTANT
     Run this script inside the training environment (venv-train), because it
@@ -65,6 +66,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--batch-size", type=int, default=config.BATCH_SIZE)
     parser.add_argument("--num-workers", type=int, default=config.NUM_WORKERS)
+    parser.add_argument(
+        "--reports-dir",
+        type=Path,
+        default=config.REPORTS_DIR,
+        help=(
+            "Where to write evaluation_report.json. The default is "
+            "reports/, which holds Experiment 1's frozen official result. "
+            "Point this elsewhere (for example "
+            "experiments/experiment_2_large_dataset/reports) so a second "
+            "experiment cannot overwrite it."
+        ),
+    )
     parser.add_argument(
         "--status",
         action="store_true",
@@ -193,7 +206,7 @@ def main(argv: list[str] | None = None) -> int:
         print(LINE)
         return 1
 
-    report_path = evaluation.save_report(report)
+    report_path = evaluation.save_report(report, reports_dir=args.reports_dir)
     print_metrics(report)
     print(f"[i] Report written to: {report_path}")
     print(LINE)

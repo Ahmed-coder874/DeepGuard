@@ -1,0 +1,55 @@
+{
+  "generated_at": "2026-10-04T07:37:44",
+  "checkpoint_path": "models\\experiment_2_deepguard_efficientnet_b0.pt",
+  "processed_dir": "experiments\\experiment_2_large_dataset\\processed",
+  "device": "cpu",
+  "model_name": "efficientnet_b0",
+  "checkpoint_epoch": 10,
+  "checkpoint_validation_loss": 0.06835601629805751,
+  "checkpoint_validation_accuracy": 0.9688888888888889,
+  "torch_version": "2.14.0+cpu",
+  "metrics": {
+    "num_samples": 900,
+    "accuracy": 0.9755555555555555,
+    "confusion_matrix": [
+      [
+        430,
+        20
+      ],
+      [
+        2,
+        448
+      ]
+    ],
+    "class_names": [
+      "real",
+      "fake"
+    ],
+    "per_class": {
+      "real": {
+        "precision": 0.9953703703703703,
+        "recall": 0.9555555555555556,
+        "f1": 0.9750566893424036,
+        "support": 450
+      },
+      "fake": {
+        "precision": 0.9572649572649573,
+        "recall": 0.9955555555555555,
+        "f1": 0.9760348583877997,
+        "support": 450
+      }
+    },
+    "macro": {
+      "precision": 0.9763176638176638,
+      "recall": 0.9755555555555555,
+      "f1": 0.9755457738651017
+    },
+    "positive_class": "fake",
+    "positive": {
+      "precision": 0.9572649572649573,
+      "recall": 0.9955555555555555,
+      "f1": 0.9760348583877997,
+      "support": 450
+    }
+  }
+}
