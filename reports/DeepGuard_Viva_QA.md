@@ -5,6 +5,11 @@
 > Answers are based **only on the actual project** (source code, verified
 > artifacts, and the final technical report). Where information does not exist
 > in the project artifacts, the answer says so rather than inventing anything.
+>
+> **Two experiments are covered.** Sections A-E are **Experiment 1**, the frozen
+> academic baseline. **Section F** covers **Experiment 2**, a supplementary
+> experiment on a larger, differently distributed dataset
+> (`reports/experiment_2_report.md`). Experiment 2 does not replace Experiment 1.
 
 ---
 
@@ -221,12 +226,172 @@ the wild" media - reporting every result with its own evidence, as the project
 does for its current test result. None of these was performed here.
 
 **Q36. What would you improve next?**
-Integrate inference into the UI; enlarge and diversify the dataset; add more
-methods/compression levels; explore hyperparameter tuning and calibration;
-video-level detection; compare with ResNet-50 on the same split; cross-dataset
-generalisation studies.
+Integrate inference into the UI (since done); enlarge and diversify the dataset;
+add more methods/compression levels; explore hyperparameter tuning and
+calibration; video-level detection; compare with ResNet-50 on the same split;
+cross-dataset generalisation studies.
 
 ---
 
-*Viva preparation document (Stage 8). Answers reflect only verified project
-facts; no new experimental claim is introduced.*
+### F. Experiment 2 (supplementary) - the questions most likely to follow
+
+> **Why this section exists.** Once you present a second, better number, the
+> examiner's real question is almost never "what is the accuracy?" It is
+> **"why is it better, and how do you know it is the dataset?"** The honest
+> answer is that you *cannot* attribute it to dataset size, and saying so
+> confidently is worth more than a stronger-sounding wrong answer.
+
+**Q37. You report two experiments. Why?**
+Experiment 1 is the frozen academic baseline: 600 FaceForensics++ frames, 75.00%
+test accuracy. It exposed a real weakness - fake recall of only 50.00%. I then ran
+Experiment 2 on a 6,000-image subset of the Kaggle *140k Real and Fake Faces*
+dataset and got 97.56% test accuracy. Both are retained; **Experiment 2 does not
+replace Experiment 1**, it is a second evaluation under different conditions.
+
+**Q38. Why not just say the bigger dataset improved accuracy to 97.56%?**
+
+Because it did not isolate that variable. Six things changed at once between
+the two experiments:
+
+1. Data amount (600 vs 6,000 images; 360 vs 4,200 training images)
+2. **The fake generator** (FaceForensics++ face-swap vs. StyleGAN synthesis)
+3. Image framing (centre-cropped video frames vs. full square images)
+4. Source resolution (~3.2x vs. ~1.14x downsampling to the 224 input)
+5. Compression (c23 video stored as PNG vs. JPEG)
+6. Test-set size (120 vs. 900 images)
+
+With six variables moving at once, no single cause is identifiable. Stating
+"the dataset was bigger, so accuracy improved" would be an unsupported causal
+claim.
+
+**Q39. Then which factor do you think matters most?**
+
+Most likely **the forgery family**, and this is the key scientific point. A
+face-swap inherits a real person's identity, pose and lighting, so its artefacts
+are blending and boundary inconsistencies layered onto *genuine* sensor noise.
+A StyleGAN image is synthesised end to end, so its artefacts are a completely
+different signature - generator upsampling and spectral regularities. A detector
+can face these two families very differently **on its own**, independent of
+training-set size. A large part, possibly most, of the gap may reflect an
+**easier fake source** rather than a better-trained model.
+
+**Q40. So what exactly can you claim about Experiment 2?**
+
+That under its specified larger-dataset and independently sourced conditions,
+the model reached **97.56% test accuracy** and **97.55% macro F1** on a 900-image
+held-out test split, and that Experiment 1's weak fake recall was substantially
+relieved (2 missed fakes out of 450, versus 30 out of 60). I explicitly cannot
+claim dataset size caused it, and I do not claim generalisation to all
+deepfakes.
+
+**Q41. What was Experiment 2's dataset, and is it legitimate to use?**
+
+A 6,000-image class-balanced subset (3,000 real FFHQ photographs, 3,000
+StyleGAN fakes) of Kaggle `xhlulu/140k-real-and-fake-faces` (v2), which pools
+140,000 images. The underlying FFHQ photographs are CC BY-NC-SA 4.0 -
+**non-commercial use with attribution** - and the repository **redistributes no
+images**. Licence compliance is documented in the dataset report.
+
+**Q42. How did you select 6,000 images from 140,000 - wasn't that cherry-picking?**
+
+It was **deterministic and seeded** (`seed 42`), not hand-picked. The builder
+scans all 140,000 images, removes exact duplicates (MD5) and near-duplicates
+(64-bit perceptual hash), then subsamples to fixed per-class quotas using a
+seed derived from `42`. Because the seed is fixed, the subset is reproducible -
+and the whole thing is pinned by a SHA-256 dataset fingerprint that the training
+script re-verifies at startup, refusing to run against a changed dataset.
+
+**Q43. How did you prevent leakage in Experiment 2, given it has no identity labels?**
+
+Four layers:
+
+1. The publisher's **official** `train`/`valid`/`test` folders were inherited, so
+   no image ever crosses that boundary.
+2. **Exact-duplicate (MD5) removal**, with same-class cross-split duplicates
+   resolved by keeping the copy in the higher-priority split.
+3. **Near-duplicate removal** by 64-bit pHash at threshold 3 bits - **5,069**
+   near-duplicates were removed from the pool.
+4. **Six automated build audits**, all passing, including an explicit
+   `no_near_duplicate_across_splits` check; the builder and validator both exit
+   non-zero on failure.
+
+**Honest caveat if pressed:** the minimum cross-split pHash distances were 4, 4
+and 6 bits against a threshold of 3. Two of those margins are a single bit, so
+the guarantee is threshold-relative rather than generous, and
+**Experiment 1's identity-component split was actually the stricter one.**
+
+**Q44. Experiment 2 has no identity metadata - isn't that a weakness?**
+
+Yes, and I state it as a limitation rather than hiding it. Because no identity
+labels are published, identity-level grouping is impossible; leakage control
+rests on the publisher's splits plus de-duplication instead. **Experiment 1, with
+600 frames, had genuine identity-component grouping and is the more
+stringent split of the two.** Experiment 2's defence is scale plus automated
+de-duplication, not person-level separation.
+
+**Q45. Experiment 2's best checkpoint is the final epoch - doesn't that mean it
+was undertrained?**
+
+Yes, and that is exactly why I would not call 97.56% a ceiling. The epoch-10
+checkpoint had the lowest validation loss and validation loss was still falling
+when the 10-epoch CPU budget ran out, so the model was likely **not converged**.
+Running longer could move the number in either direction. A ceiling claim would
+be unjustified.
+
+**Q46. Experiment 2 made 20 false positives. Isn't that worse?**
+
+It is a genuine trade-off and the two experiments fail in **opposite
+directions**:
+
+| | Experiment 1 | Experiment 2 |
+| --- | --- | --- |
+| Missed fakes (false negatives) | 30 | **2** |
+| False alarms (false positives) | 0 | 20 |
+
+Under the balanced 900-image test set this costs little accuracy. But under a
+real-world prior where most incoming images are genuine, 20 false alarms would
+matter more. **Experiment 1's perfect fake precision was itself an artefact of
+barely attempting any fake prediction** - it missed half its fakes. Neither
+result is simply "better"; they fail in opposite directions.
+
+**Q47. Validation accuracy was 96.89% and test accuracy 97.56% - which do you report?**
+
+**97.56% test accuracy is the reported result.** The 96.89% validation accuracy
+(and 0.0684 validation loss) were the checkpoint-selection signals, so they are
+reported separately and never quoted as performance. Separately again, a
+prediction from the running Streamlit app is a **live demo output** - a single
+image, `argmax` threshold, uncalibrated - and forms no part of any official
+evaluation.
+
+**Q48. Can you design the experiment that would actually answer "does more data
+help?"**
+
+Yes, and it is the top item in my future work. To isolate dataset size you must
+hold everything else fixed: take **one** dataset and train at two sizes (for
+example 600 and 6,000 images from the same Kaggle pool, same generator, same
+framing, same test split). Alternatively, hold size fixed and vary the generator.
+Until that is run, the honest position is that Experiment 2 demonstrates
+**performance under a larger and differently distributed dataset**, and does not
+quantify a dataset-size effect.
+
+**Q49. Why use the same EfficientNet-B0 in both experiments? Wasn't that a
+limitation?**
+
+Deliberately, so the architecture is not a confounding variable - that is what
+makes the two results comparable at all. It does mean the study shows nothing
+about whether another architecture would close the gap. Comparing architectures
+would need matched data, which I did not run.
+
+**Q50. Why was Experiment 2 trained on CPU for 10 hours?**
+
+No GPU was available. EfficientNet-B0 was chosen partly because 5.3M parameters
+and 0.39B FLOPs make CPU training feasible at all; the 600.47-minute run is the
+cost of that constraint on 4,200 images. The practical lesson is that dataset
+scale, not model size, is what dominates CPU feasibility here.
+
+---
+
+*Viva preparation document (Stage 8), covering Experiment 1 (frozen baseline)
+and Experiment 2 (supplementary). Answers reflect only verified project facts; no
+new experimental claim is introduced. The single most important line to
+remember: **Experiment 2 is not a controlled dataset-size experiment.***

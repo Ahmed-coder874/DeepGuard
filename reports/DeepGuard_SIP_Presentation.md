@@ -11,6 +11,13 @@
 > report, the checkpoint, `reports/evaluation_report.json`, the training log and
 > `data/processed/dataset_summary.json` (see Appendix A of the final report).
 >
+> **Two experiments are presented.** Slides up to *Limitations* cover
+> **Experiment 1**, the frozen academic baseline. A clearly separated
+> **Experiment 2** section follows it, sourced from
+> `experiments/experiment_2_large_dataset/dataset_report.json`,
+> `training_summary.json`, `reports/evaluation_report.json` and
+> `reports/experiment_2_report.md`. **Experiment 2 does not replace Experiment 1.**
+>
 > **Presenter placeholders:** [Student Name], [Register Number] - to be filled
 > in before presenting.
 
@@ -49,6 +56,9 @@
 4. Implement and run a documented training pipeline.
 5. Evaluate the trained model **once** on the held-out test split.
 6. Trace every reported value to a real project artifact.
+7. (Experiment 2) Repeat the same honest protocol on a **larger, independently
+   sourced dataset with a different fake class**, and report the outcome **without**
+   claiming that dataset size caused any change.
 
 ---
 
@@ -218,7 +228,7 @@ which is the safety-relevant direction.
 
 ---
 
-## Slide 13 - Limitations (must be presented)
+## Slide 13 - Experiment 1 Limitations (must be presented)
 
 - Verified dataset is **600 frames** (300 + 300), not the 1,200 originally
   documented; all reported counts use the verified disk state.
@@ -232,7 +242,140 @@ which is the safety-relevant direction.
 
 ---
 
-## Slide 14 - Conclusion
+# Part 2 - Experiment 2 (Supplementary)
+
+> **One-sentence framing for the presenter.** Experiment 1 is the frozen
+> baseline. Experiment 2 asks: what does the same architecture do on a much
+> larger dataset whose synthetic images are made by a **different generator**?
+> It is a **second evaluation under different conditions - not a controlled
+> dataset-size experiment.**
+
+## Slide 14 - Why a Second Experiment?
+
+Experiment 1's headline weakness was **fake recall of only 50.00%** - half the
+fakes were missed. Two possible causes:
+
+1. The training set was tiny (only **360** training images).
+2. The **forgery type** (face-swap) is intrinsically harder.
+
+Experiment 2 was designed to move both variables at once and see what happened.
+
+- **Dataset:** Kaggle *140k Real and Fake Faces* (v2) - 140,000 images.
+- **Fake class changed completely:** FF++ **face-swap** (Experiment 1) ->
+  **StyleGAN synthesis** (Experiment 2).
+- Same architecture, same honest "evaluate once" protocol, same CPU-only setup.
+
+## Slide 15 - Experiment 2: Dataset and Integrity Controls
+
+- **6,000 images** selected from the 140,000-image pool (3,000 real / 3,000 fake).
+- **Deterministic, seeded selection** (`seed 42`), per-class quotas.
+
+| Split | Real | Fake | Total | Share |
+| --- | --- | --- | --- | --- |
+| Train | 2,100 | 2,100 | 4,200 | 70% |
+| Validation | 450 | 450 | 900 | 15% |
+| Test | 450 | 450 | 900 | 15% |
+
+**Duplicate / leakage controls - 6 of 6 audits passed**
+
+| Control | Result |
+| --- | --- |
+| Exact duplicates (MD5) | **0** removed |
+| **Near-duplicates removed (64-bit pHash, threshold 3)** | **5,069** |
+| Unreadable / corrupt images | **0** |
+| Min cross-split pHash distance | **4 / 4 / 6 bits** (threshold 3) |
+| Cross-split image leakage | **none** (publisher's official splits inherited) |
+
+- Dataset pinned by a **SHA-256 fingerprint**, re-verified at training start.
+- Copies **nothing** until every audit passes; validator exits non-zero on failure.
+
+## Slide 16 - Experiment 2: Training and Test Results
+
+**Training** - EfficientNet-B0, ImageNet-pretrained, CPU only
+
+| Setting | Value |
+| --- | --- |
+| Epochs requested / completed | 10 / 10 (**early stopping not triggered**) |
+| Best epoch | **10** (lowest validation loss 0.0684) |
+| Batch / LR / weight decay | 8 / 3e-4 / 1e-4 |
+| Duration | **600.47 minutes** (~10 hours, CPU) |
+| Checkpoint | `experiment_2_deepguard_efficientnet_b0.pt` (16.3 MB) |
+
+**Official test result** - one evaluation on the untouched **900-image** test split
+
+| Metric | Value |
+| --- | --- |
+| **Accuracy** | **97.56%** (878 / 900 correct) |
+| real precision / recall / F1 | 99.54% / 95.56% / 0.9751 |
+| fake precision / recall / F1 | 95.73% / 99.56% / 0.9760 |
+| Macro precision / recall / F1 | 97.63% / 97.56% / **97.55%** |
+
+**Confusion matrix:** [[430, 20], [2, 448]] (rows = actual, columns = predicted)
+
+| | Predicted real | Predicted fake |
+| --- | --- | --- |
+| **Actual real** | 430 | 20 |
+| **Actual fake** | 2 | 448 |
+
+- **Only 2 of 450 fakes missed** (was 30 of 60 in Experiment 1).
+- **20 real frames raised false alarms** (was 0).
+
+![Experiment 2 confusion matrix](experiment_2_large_dataset/reports/confusion_matrix.png)
+
+## Slide 17 - Experiment 2: Comparison and Interpretation
+
+| Test metric | Experiment 1 (frozen baseline) | Experiment 2 |
+| --- | --- | --- |
+| Test images | 120 | 900 |
+| **Test accuracy** | **75.00%** | **97.56%** |
+| Macro F1 | 73.33% | 97.55% |
+| False negatives (missed fakes) | 30 | **2** |
+| False positives (false alarms) | 0 | 20 |
+| Training time | 52 min 28 s | 600.47 min |
+
+> **The mandatory caveat - say this out loud.**
+> Experiment 2 is **NOT** a controlled dataset-size experiment. Six things
+> changed at once:
+>
+> 1. Data amount (600 -> 6,000 images)
+> 2. **Fake generator: face-swap -> StyleGAN synthesis**
+> 3. Image framing (video crops vs. full square images)
+> 4. Source resolution (3.2x vs. 1.14x downsampling)
+> 5. Compression (c23 video vs. JPEG)
+> 6. Test-set size (120 vs. 900 images)
+
+**Why this matters most:** a face-swap inherits a real person's pose and
+lighting, so its artefacts are blending errors layered onto genuine sensor
+noise. A StyleGAN image is synthesised end to end - a completely different
+artefact signature. **A large part of the gap may be an easier fake source, not
+a better-trained model.**
+
+**Correct claim:** Experiment 2 achieved higher test performance under its
+larger-dataset, independently-sourced conditions, and the design does not permit
+attributing that to dataset size alone.
+
+**Incorrect claims (do not say these):** "accuracy improved because the dataset
+was bigger", "the 10x larger dataset improved detection".
+
+## Slide 18 - Experiment 2 Limitations (must be presented)
+
+- **Not a dataset-size-controlled experiment** (previous slide).
+- **Different forgery family** - StyleGAN only; says nothing about face-swap.
+- **No identity metadata** in this dataset, so identity-level grouping is
+  impossible. Leakage control rests on the publisher's splits + de-duplication.
+  (Experiment 1's identity-component split was the stricter one.)
+- **Best checkpoint is the final epoch** - validation loss was still falling, so
+  the model was **not fully converged**. 97.56% is **not a ceiling**.
+- Near-duplicate margins are **tight**: two cross-split margins are only **1
+  bit** above the threshold.
+- Single-source test set - **does not generalise** to all real-world deepfakes.
+- Frame-level only; displayed confidence is **uncalibrated**.
+- 20 false alarms would matter more under a real-world prior where most images
+  are genuine.
+
+---
+
+## Slide 19 - Conclusion
 
 DeepGuard delivered an honest, reproducible image-based deepfake-detection
 workflow:
@@ -246,22 +389,40 @@ workflow:
 - Training history is consistent with a close fit to the training split that
   does not fully transfer to held-out splits.
 
-The experiment is finished; results are reported with their limitations.
+**Experiment 2 (supplementary).** The same architecture on a **larger,
+differently distributed** dataset (6,000 Kaggle 140k images, de-duplicated, 6/6
+audits passed, 600.47 min) reached **97.56% test accuracy** and **97.55% macro
+F1** on a 900-image test split, with **2** missed fakes instead of 30. The
+change from Experiment 1 is **not attributable to dataset size alone**, because
+data amount, forgery family, framing, resolution, compression and test-set size
+all changed together.
+
+Both experiments are reported with their limitations. Neither is claimed to be
+optimal, state of the art, production-ready, or generalisable beyond its own
+dataset.
 
 ---
 
-## Slide 15 - Future Work
+## Slide 20 - Future Work
 
-1. Integrate inference into the Streamlit UI (real prediction + confidence).
-2. Enlarge and diversify the dataset (more identities, methods, compression
-   levels; cross-dataset tests such as Celeb-DF).
+1. ~~Integrate inference into the Streamlit UI.~~ **Done** - the app now serves
+   the Experiment 2 checkpoint and returns a real prediction with confidence.
+2. Enlarge and diversify the Experiment 1 dataset (more identities, methods,
+   compression levels; cross-dataset tests such as Celeb-DF).
 3. Video-level detection using temporal information.
 4. Hyperparameter tuning and comparison with the documented ResNet-50
    alternative (reported only after a real evaluation).
 5. Robustness / generalisation studies on unseen generators and "in the wild"
    media - documented with the same evidence-traceability discipline.
+6. **Run Experiment 2 to convergence** - validation loss was still falling.
+7. **Run the missing controlled experiment** - same dataset at two sizes, or
+   both datasets at matched size, to isolate the dataset-size variable.
+8. **Cross-forgery transfer test** - each checkpoint on the forgery family it
+   never saw.
 
 ---
 
-*Presentation prepared from verified project artifacts (Stage 8). See the full
-evidence tables in `reports/DeepGuard_SIP_Final_Technical_Report.md`.*
+*Presentation prepared from verified project artifacts (Stage 8), covering
+Experiment 1 (frozen baseline) and Experiment 2 (supplementary). See the full
+evidence tables in `reports/DeepGuard_SIP_Final_Technical_Report.md` and
+`reports/experiment_2_report.md`.*
